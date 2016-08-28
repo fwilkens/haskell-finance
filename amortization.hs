@@ -1,8 +1,11 @@
-module Amortization (amortizeByPayment) where
+module Amortization (amortizeByPayment, calculatePayment) where
 
 import Data.Decimal
 calcInterest :: Decimal -> Decimal -> Decimal
-calcInterest principal apr = principal * (roundTo 15 (apr / 12.0))
+calcInterest principal apr = principal * (toMonthlyRate apr)
+
+toMonthlyRate :: Decimal -> Decimal
+toMonthlyRate annualRate = roundTo 15 (annualRate / 12.0)
 
 totalInterest :: Decimal -> Decimal -> Decimal -> Decimal
 totalInterest principal mPayment apr
@@ -17,7 +20,15 @@ sequencePayments principal mPayment
   | otherwise = [mPayment] ++ (sequencePayments (principal - mPayment) mPayment)
 
 
--- Takes a principal, monthly payment, and apr and amortizes the principal accordingly.
 amortizeByPayment :: Decimal -> Decimal -> Decimal -> [Decimal]
 amortizeByPayment principal mPayment apr =
   sequencePayments (principal + (totalInterest principal mPayment apr)) mPayment
+
+calculatePayment :: Decimal -> Integer -> Decimal -> Decimal
+calculatePayment principal numPeriods periodRate =
+  roundTo 2 (
+    principal * (
+      (periodRate * ((1 + periodRate)^numPeriods)) /
+      (((1 + periodRate)^numPeriods) -1)
+    )
+  )
