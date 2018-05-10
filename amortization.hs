@@ -1,6 +1,7 @@
 module Amortization (amortizeByPayment, calculatePayment) where
 
 import Data.Decimal
+
 calcInterest :: Decimal -> Decimal -> Decimal
 calcInterest principal apr = principal * (toMonthlyRate apr)
 
@@ -18,7 +19,6 @@ sequencePayments :: Decimal -> Decimal -> [Decimal]
 sequencePayments principal mPayment
   | principal <= mPayment = [principal]
   | otherwise = [mPayment] ++ (sequencePayments (principal - mPayment) mPayment)
-
 
 amortizeByPayment :: Decimal -> Decimal -> Decimal -> [Decimal]
 amortizeByPayment principal mPayment apr =
