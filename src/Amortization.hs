@@ -2,6 +2,20 @@ module Amortization (amortizeByPayment, calculatePayment) where
 
 import Data.Decimal
 
+amortizeByPayment :: Decimal -> Decimal -> Decimal -> [Decimal]
+amortizeByPayment principal mPayment apr
+  | principal <= 0 || mPayment <= 0 || apr < 0 = error "Negative argument not allowed"
+  | otherwise = sequencePayments (principal + (totalInterest principal mPayment apr)) mPayment
+
+calculatePayment :: Decimal -> Integer -> Decimal -> Decimal
+calculatePayment principal numPeriods periodRate =
+  roundTo 2 (
+    principal * (
+      (periodRate * ((1 + periodRate)^numPeriods)) /
+      (((1 + periodRate)^numPeriods) -1)
+    )
+  )
+
 calcInterest :: Decimal -> Decimal -> Decimal
 calcInterest principal apr = principal * (toMonthlyRate apr)
 
@@ -19,16 +33,3 @@ sequencePayments :: Decimal -> Decimal -> [Decimal]
 sequencePayments principal mPayment
   | principal <= mPayment = [principal]
   | otherwise = [mPayment] ++ (sequencePayments (principal - mPayment) mPayment)
-
-amortizeByPayment :: Decimal -> Decimal -> Decimal -> [Decimal]
-amortizeByPayment principal mPayment apr =
-  sequencePayments (principal + (totalInterest principal mPayment apr)) mPayment
-
-calculatePayment :: Decimal -> Integer -> Decimal -> Decimal
-calculatePayment principal numPeriods periodRate =
-  roundTo 2 (
-    principal * (
-      (periodRate * ((1 + periodRate)^numPeriods)) /
-      (((1 + periodRate)^numPeriods) -1)
-    )
-  )
