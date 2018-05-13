@@ -10,10 +10,10 @@ amortizeByPayment principal mPayment apr
 calculatePayment :: Decimal -> Int -> Decimal -> Decimal
 calculatePayment principal numPeriods periodRate
   | periodRate <= 0 = principal/(fromIntegral numPeriods)
-  | otherwise = roundTo 2 (principal * (interestMultiplier numPeriods periodRate))
+  | otherwise = roundTo 2 (principal * (monthlyPaymentDiscountFactor numPeriods periodRate))
 
-interestMultiplier :: Int -> Decimal -> Decimal
-interestMultiplier numPeriods periodRate =
+monthlyPaymentDiscountFactor :: Int -> Decimal -> Decimal
+monthlyPaymentDiscountFactor numPeriods periodRate =
   let numerator   = periodRate * ((1 + periodRate)^numPeriods)
       denominator = (1 + periodRate)^numPeriods -1
   in numerator / denominator
