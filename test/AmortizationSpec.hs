@@ -18,7 +18,7 @@ spec = do
         evaluate (amortizeByPayment 100 (negate 10) 0.05) `shouldThrow` anyErrorCall
     context "calculating a monthly payment" $ do
       it "returns accurate results for 0%" $ do
-        pending
+        calculatePayment 100 10 0.0 `shouldBe` 10.0
       it "returns accurate results for 5%" $ do
         calculatePayment 100 10 (0.05/12.0) `shouldBe` 10.23
 main :: IO ()
