@@ -1,4 +1,4 @@
-module Tvm (npv, pv) where
+module Tvm (npv) where
 
 import Data.Decimal
 
