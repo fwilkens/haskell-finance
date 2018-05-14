@@ -21,5 +21,7 @@ spec = do
         calculatePayment 100 10 0.0 `shouldBe` 10.0
       it "returns accurate results for 5%" $ do
         calculatePayment 100 10 (0.05/12.0) `shouldBe` 10.23
+      it "throws an error for a negative interest rate" $ do
+        evaluate (calculatePayment 100 10 $ negate 0.05/12.0) `shouldThrow` anyErrorCall
 main :: IO ()
 main = hspec spec

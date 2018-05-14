@@ -5,12 +5,14 @@ import Data.Decimal
 amortizeByPayment :: Decimal -> Decimal -> Decimal -> [Decimal]
 amortizeByPayment principal mPayment apr
   | principal <= 0 || mPayment <= 0 || apr < 0 = error "Negative argument not allowed"
-  | otherwise = sequencePayments (principal + (totalInterest principal mPayment apr)) mPayment
+  | otherwise = sequencePayments totalObligation mPayment
+  where totalObligation = principal + totalInterest principal mPayment apr
 
 calculatePayment :: Decimal -> Int -> Decimal -> Decimal
 calculatePayment principal numPeriods periodRate
-  | periodRate <= 0 = principal/(fromIntegral numPeriods)
-  | otherwise = round2 $ principal * (monthlyPaymentDiscountFactor numPeriods periodRate)
+  | periodRate < 0  = error "Interest rate must be positive"
+  | periodRate == 0 = principal/(fromIntegral numPeriods)
+  | otherwise       = round2 $ principal * monthlyPaymentDiscountFactor numPeriods periodRate
 
 monthlyPaymentDiscountFactor :: Int -> Decimal -> Decimal
 monthlyPaymentDiscountFactor numPeriods periodRate =
@@ -34,7 +36,7 @@ totalInterest principal mPayment apr
 sequencePayments :: Decimal -> Decimal -> [Decimal]
 sequencePayments principal mPayment
   | principal <= mPayment = [principal]
-  | otherwise = [mPayment] ++ (sequencePayments (principal - mPayment) mPayment)
+  | otherwise = [mPayment] ++ sequencePayments (principal - mPayment) mPayment
 
 round2 :: Decimal -> Decimal
 round2 = roundTo 2
