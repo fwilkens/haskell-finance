@@ -3,6 +3,11 @@ Simple finance implementations in Haskell.
 - Currently only supports APR
 - Depends on `Data.Decimal`
 
+## Run Tests
+```bash
+runhaskell -isrc -itest test/Spec.hs
+```
+
 **Examples**
 
 Calculate the payment on a $150k loan over 30 years at %6 APR

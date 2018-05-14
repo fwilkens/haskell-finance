@@ -10,7 +10,7 @@ amortizeByPayment principal mPayment apr
 calculatePayment :: Decimal -> Int -> Decimal -> Decimal
 calculatePayment principal numPeriods periodRate
   | periodRate <= 0 = principal/(fromIntegral numPeriods)
-  | otherwise = roundTo 2 (principal * (monthlyPaymentDiscountFactor numPeriods periodRate))
+  | otherwise = round2 $ principal * (monthlyPaymentDiscountFactor numPeriods periodRate)
 
 monthlyPaymentDiscountFactor :: Int -> Decimal -> Decimal
 monthlyPaymentDiscountFactor numPeriods periodRate =
@@ -19,19 +19,25 @@ monthlyPaymentDiscountFactor numPeriods periodRate =
   in numerator / denominator
 
 calcInterest :: Decimal -> Decimal -> Decimal
-calcInterest principal apr = principal * (toMonthlyRate apr)
+calcInterest principal apr = principal * (round15 $ toMonthlyRate apr)
 
 toMonthlyRate :: Decimal -> Decimal
-toMonthlyRate annualRate = roundTo 15 (annualRate / 12.0)
+toMonthlyRate = (/12.0)
 
 totalInterest :: Decimal -> Decimal -> Decimal -> Decimal
 totalInterest principal mPayment apr
-    | (principal + (calcInterest principal apr) <= mPayment) = roundTo 2 (calcInterest principal apr)
-    | otherwise =
-      roundTo 2 (calcInterest principal apr) +
-                (totalInterest (principal - (mPayment - (calcInterest principal apr))) mPayment apr)
+    | (principal + periodInterest <= mPayment) = round2 $ periodInterest
+    | otherwise = round2 $ periodInterest + futureInterest
+    where periodInterest = calcInterest principal apr
+          futureInterest = totalInterest (principal - (mPayment - periodInterest)) mPayment apr
 
 sequencePayments :: Decimal -> Decimal -> [Decimal]
 sequencePayments principal mPayment
   | principal <= mPayment = [principal]
   | otherwise = [mPayment] ++ (sequencePayments (principal - mPayment) mPayment)
+
+round2 :: Decimal -> Decimal
+round2 = roundTo 2
+
+round15 :: Decimal -> Decimal
+round15 = roundTo 15
